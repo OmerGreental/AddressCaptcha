@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import {analyzeResults, getLocationsPhotoArray} from "../services/captchaService";
+import {analyzeResults, getLocationsPhotoArray, getLocationsPhotoArrayTest} from "../services/captchaService";
 
 export const nearbySearchController = async (req: Request, res: Response) => {
     try {
@@ -9,7 +9,7 @@ export const nearbySearchController = async (req: Request, res: Response) => {
             res.status(400).json({ error: "Missing required parameters: address" });
         }
 
-        const places = await getLocationsPhotoArray(address);
+        const places = await getLocationsPhotoArrayTest(address);
         res.json({ places });
     } catch (error: any) {
         res.status(500).json({ error: error.message });

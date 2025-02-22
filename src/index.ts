@@ -2,7 +2,9 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import captchaRoutes from "./routes/captchaRoutes";
-import { requestLogger } from "./middlewares/requestLogger";
+import {requestLogger} from "./middlewares/requestLogger";
+import {getNearbyPlacesByAddress} from "./utils/apiWrapper";
+import {FetchMode} from "./utils/googleMapsApiHelper";
 
 dotenv.config(); // Load environment variables
 
