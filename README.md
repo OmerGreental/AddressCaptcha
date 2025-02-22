@@ -59,7 +59,8 @@ Step 3: Rewrote everything in TypeScript & Node.js (6-8 days).
 
 
 Here is a step by step tutorial on how to install and run the project: 
-link
+
+https://youtu.be/sh8BYv6eatY
 
 
 Installation Guide:
