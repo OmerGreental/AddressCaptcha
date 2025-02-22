@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>My First Project</title>
+    <style>
+        #imageTable {
+            width: 20px; /* Adjust table width */
+            border-collapse: collapse;
+            margin: auto; /* Center the table */
+        }
+
+        #imageTable td {
+            /*border: 2px solid black; /* Add border around each cell */
+            padding: 20px; /* Add spacing inside each cell */
+            text-align: center; /* Center content */
+        }
+
+        .image-container {
+            display: inline-block;
+            position: relative; /* Allows absolute positioning of button inside */
+        }
+
+        .table-image {
+            display: block;
+            margin: auto; /* Center images in the cell */
+            border-radius: 0px; /* Optional: Rounded corners */
+            box-shadow: 2px 2px 10px rgba(165, 165, 165, 0.2); /* Add shadow effect */
+            user-select: none;
+        }
+
+        .another-image-button {
+            position: absolute;
+            bottom: 15px; /* Adjusts button position from the bottom */
+            left: 50%; /* Centers the button */
+            transform: translateX(-50%); /* Ensures it stays centered */
+            background-color: rgb(245, 245, 245);
+            color: #303030;
+            border: none;
+            padding: 12px 24px;
+            width: 65%;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .another-image-button:hover {
+            background-color: rgba(218, 218, 218, 0.9);
+        }
+
+        .choose-checkbox {
+            display: none; /* Hide the default checkbox */
+        }
+
+        .choose-image-button {
+            position: absolute;
+            top: 0%; /* Adjusts button position from the bottom */
+            left: 0%; /* Centers the button */
+            background-color: rgba(255, 255, 255, 0.7);
+            color: #303030;
+            border: 2px solid #d4d4d4; /* Visible border */
+            width: 20%;
+            height: 20%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .choose-checkbox:checked + .choose-image-button::after {
+            content: "V";  /* Checkmark */
+            font-size: 30px;
+            color: rgb(55, 55, 55);
+            font-weight: bold;
+        }
+
+        .choose-image-button:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+    </style>
+</head>
+<body>
+<p id="answer"></p>
+<h2>Enter Address:</h2>
+<textarea id="addressInput" rows="3" cols="30"></textarea>
+<button onclick="sendAddress()">Submit Address</button>
+<script>function displayImage(src, width, height) {
+    let img = document.createElement("img")
+
+    img.src = src
+    img.width = width
+    img.height = height
+
+    document.body.appendChild(img)
+}
+
+function createImage(imageSources, width, height) {
+    let container = document.createElement("div");
+    container.className = "image-container"; // Add a class for styling
+    container.style.position = "relative";  // Enable absolute positioning inside
+
+    let img = document.createElement("img")
+    img.src = img.src = imageSources[0];
+    img.width = width;
+    img.height = height;
+    img.className = "table-image"; // Add a class for styling
+    img.dataset.index = "0"; // Track current image index
+
+    let checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.className = "choose-checkbox"; // Add a class for styling
+    checkbox.id = `checkbox-${Math.random().toString(36).substring(7)}`; // Unique ID
+
+    let label = document.createElement("label");
+    label.className = "choose-image-button";
+    label.setAttribute("for", checkbox.id); // Connect label to checkbox
+
+
+    let button_2 = document.createElement("button");
+    button_2.innerText = "Show Different Picture";
+    button_2.className = "another-image-button"; // Add a class for styling
+    button_2.addEventListener("click", function () {
+        let currentIndex = parseInt(img.dataset.index, 10);
+        let nextIndex = (currentIndex + 1) % imageSources.length; // Cycle images
+        img.src = imageSources[nextIndex];
+        img.dataset.index = nextIndex;
+    });
+
+    container.appendChild(img)
+    container.appendChild(checkbox)
+    container.appendChild(label)
+    container.appendChild(button_2)
+
+    return container
+}
+
+function createTable(rows, cols) {
+    let table = document.createElement("table")
+
+    for (let i = 0; i < rows; i++) {
+        let row = table.insertRow();
+        for (let j = 0; j < cols; j++) {
+            let cell = row.insertCell();
+            cell.innerText = `Row ${i + 1}, Col ${j + 1}`;
+        }
+    }
+
+    document.body.appendChild(table)
+}
+
+function createTableWithImages(rows, cols, imageSets) {
+    let table = document.createElement("table")
+
+    table.id = "imageTable"
+    for (let i = 0; i < rows; i++) {
+        let row = table.insertRow();
+        for (let j = 0; j < cols; j++) {
+            let cell = row.insertCell();
+            cell.appendChild(createImage(imageSets[i * cols + j], 350, 350))
+        }
+    }
+
+    document.body.appendChild(table)
+}
+
+function checkCheckboxState() {
+    let checkboxes = document.querySelectorAll(".choose-checkbox");
+    let checkboxStatus = []
+    checkboxes.forEach(checkbox => {
+        if (checkbox.checked == true){
+            checkboxStatus.push(1);
+        }
+        else{
+            checkboxStatus.push(0);
+        }
+
+    });
+    sendAnswers(checkboxStatus);
+}
+
+async function sendAddress() {
+    try {
+        const addressValue = document.getElementById("addressInput").value;
+
+        const response = await fetch("http://localhost:5000/api/nearby-search", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ address: addressValue })
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch images");
+
+        const data = await response.json();
+        console.log("API Response:", data);  // Log the response to debug
+
+        createTableWithImages(5, 3, data.places);
+
+        let checkButton = document.createElement("button");
+        checkButton.innerText = "Send Answers";
+        checkButton.id = "answerButton"
+        checkButton.addEventListener("click", checkCheckboxState);
+        document.body.appendChild(checkButton);
+
+        let resultPlace = document.createElement("p");
+        resultPlace.id = "resultAnswerPlace"
+        document.body.appendChild(resultPlace);
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        alert("Something went wrong. Please try again.");
+    }
+}
+
+
+async function sendAnswers(answersList) {
+
+    const response = await fetch("http://localhost:5000/api/submit-answer", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ results: answersList }) // Send input as JSON
+    });
+    const data = await response.json();
+    console.log("API Response:", data);  // Log the response to debug
+    document.getElementById("resultAnswerPlace").innerText = data.answer;
+}</script>
+</body>
+</html>
