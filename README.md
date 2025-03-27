@@ -69,7 +69,9 @@ Google Street View API - Generating place images
 Development Timeline:
 
 Step 1: Implemented main logic in Python (2-3 days).
+
 Step 2: Built a working FastAPI server for testing and expanded the main logic (1-2 day).
+
 Step 3: Rewrote everything in TypeScript & Node.js (6-8 days).
 
 
